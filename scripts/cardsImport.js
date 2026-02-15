@@ -53,7 +53,6 @@ async function importCards() {
             JSON.stringify(card.attacks || []),
             JSON.stringify(card.weaknesses || []),
             setIdFromFileName, // set_id (ex: base1)
-            setIdFromFileName, // set_name (temporariamente igual ao ID)
             card.number,
             card.rarity || "Common",
             JSON.stringify(card.images || {}),
