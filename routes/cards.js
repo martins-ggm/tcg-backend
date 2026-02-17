@@ -86,4 +86,18 @@ router.get("/collection/get", async (req, res) => {
   }
 });
 
+router.delete("/collection/remove", async (req, res) => {
+  const { userId, cardId } = req.query;
+
+  try {
+    const query = "delete from user_cards where user_id = $1 and card_id = $2";
+    const values = [userId, cardId];
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("error on delete card from collection", e.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;
