@@ -37,6 +37,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/mycards", async (req, res) => {
+  const { userId, name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({ error: "No text on search" });
+  }
+
+  try {
+    console.log(`Searching for: ${name}`);
+
+    const query = `
+       select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 and pc.name ILIKE $2
+      `;
+    const values = [userId, `%${name}%`];
+
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Search error:", error.message);
+    res.status(500).json({ error: "Internal server error!" });
+  }
+});
+
 router.post("/collection/update", async (req, res) => {
   const { userId, cardId, quantity } = req.body;
   try {
