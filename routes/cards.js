@@ -48,7 +48,7 @@ router.get("/mycards", async (req, res) => {
     console.log(`Searching for: ${name}`);
 
     const query = `
-       select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 and pc.name ILIKE $2
+       select pc.id, pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 and pc.name ILIKE $2
       `;
     const values = [userId, `%${name}%`];
 
