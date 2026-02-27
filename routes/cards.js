@@ -64,8 +64,8 @@ router.post("/collection/update", async (req, res) => {
   const { userId, cardId, quantity } = req.body;
   try {
     const query = `
-     INSERT INTO user_cards (user_id, card_id, quantity) 
-      VALUES ($1,$2 ,$3 ) 
+     INSERT INTO user_cards (user_id, card_id, quantity, added_at) 
+      VALUES ($1,$2 ,$3, NOW()) 
       ON CONFLICT (user_id, card_id) 
       DO UPDATE SET quantity = EXCLUDED.quantity 
       RETURNING *;
@@ -99,7 +99,22 @@ router.get("/collection/get", async (req, res) => {
 
   try {
     const query =
-      "select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1";
+      "select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 order by added_at desc";
+    const values = [userId];
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("error on get card collections", e.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/collection/getlatest", async (req, res) => {
+  const { userId } = req.query;
+
+  try {
+    const query =
+      "select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 order by added_at desc limit 20";
     const values = [userId];
     const result = await pool.query(query, values);
     res.json(result.rows);
