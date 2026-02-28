@@ -70,7 +70,9 @@ router.post("/collection/update", async (req, res) => {
       DO UPDATE SET quantity = EXCLUDED.quantity 
       RETURNING *;
       `;
-    const result = await pool.query(query, [userId, cardId, quantity]);
+
+    const values = [userId, cardId, quantity];
+    const result = await pool.query(query, values);
     res.json(result.rows[0]);
   } catch (err) {
     console.log(err);
