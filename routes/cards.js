@@ -138,4 +138,19 @@ router.delete("/collection/remove", async (req, res) => {
   }
 });
 
+router.get("/collection/getfavorite", async (req, res) => {
+  const { userId } = req.query;
+
+  try {
+    const query =
+      "select pc.name,pc.images->>'small' as imageSmall,pc.images->>'large' as imageLarge,pc.rarity,pc.types,set.name as set_name,to_char(set.release_date, 'DD FMMonth YYYY') as release_date,us.card_id from pokemon_cards as pc inner join pokemon_sets as set on pc.set_id = set.id inner join user_cards as us on us.card_id = pc.id where us.user_id = $1 and favorite is true";
+    const values = [userId];
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("error on get card collections", e.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;
