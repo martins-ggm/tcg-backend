@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const auth = require("../auth/authMiddleware");
 
 router.get("/", async (req, res) => {
   const { name } = req.query;
@@ -37,9 +38,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/mycards", async (req, res) => {
-  const { userId, name } = req.query;
-
+router.get("/mycards", auth, async (req, res) => {
+  const { name } = req.query;
+  const userId = req.user.id;
   if (!name) {
     return res.status(400).json({ error: "No text on search" });
   }
@@ -60,8 +61,9 @@ router.get("/mycards", async (req, res) => {
   }
 });
 
-router.post("/collection/update", async (req, res) => {
-  const { userId, cardId, quantity } = req.body;
+router.post("/collection/update", auth, async (req, res) => {
+  const { cardId, quantity } = req.body;
+  const userId = req.user.id;
   try {
     const query = `
      INSERT INTO user_cards (user_id, card_id, quantity, added_at) 
@@ -80,9 +82,9 @@ router.post("/collection/update", async (req, res) => {
   }
 });
 
-router.get("/collection/get/amount", async (req, res) => {
-  const { userId, cardId } = req.query;
-
+router.get("/collection/get/amount", auth, async (req, res) => {
+  const { cardId } = req.query;
+  const userId = req.user.id;
   try {
     const query =
       "select quantity from user_cards where user_id = $1 and card_id = $2";
@@ -96,8 +98,8 @@ router.get("/collection/get/amount", async (req, res) => {
   }
 });
 
-router.get("/collection/get", async (req, res) => {
-  const { userId } = req.query;
+router.get("/collection/get", auth, async (req, res) => {
+  const userId = req.user.id;
 
   try {
     const query =
@@ -111,8 +113,8 @@ router.get("/collection/get", async (req, res) => {
   }
 });
 
-router.get("/collection/getlatest", async (req, res) => {
-  const { userId } = req.query;
+router.get("/collection/getlatest", auth, async (req, res) => {
+  const userId = req.user.id;
 
   try {
     const query =
@@ -126,8 +128,9 @@ router.get("/collection/getlatest", async (req, res) => {
   }
 });
 
-router.delete("/collection/remove", async (req, res) => {
-  const { userId, cardId } = req.query;
+router.delete("/collection/remove", auth, async (req, res) => {
+  const { cardId } = req.query;
+  const userId = req.user.id;
 
   try {
     const query = "delete from user_cards where user_id = $1 and card_id = $2";
@@ -140,8 +143,8 @@ router.delete("/collection/remove", async (req, res) => {
   }
 });
 
-router.get("/collection/getfavorite", async (req, res) => {
-  const { userId } = req.query;
+router.get("/collection/getfavorite", auth, async (req, res) => {
+  const userId = req.user.id;
 
   try {
     const query =
