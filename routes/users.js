@@ -72,4 +72,20 @@ router.get("/profile", auth, async (req, res) => {
   }
 });
 
+
+router.get("/profile/image", auth, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    query = "select profile_icon from users where id = $1";
+    values = [user_id];
+
+    const result = await pool.query(query, values);
+    res.json(result);
+  } catch (error) {
+    console.log("ERROR: ", error.message);
+    res.status(500).json({ error: "Internal server error!" });
+  }
+});
+
 module.exports = router;
