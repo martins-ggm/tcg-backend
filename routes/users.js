@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const auth = require("../auth/authMiddleware");
 
 router.post("/create", async (req, res) => {
   try {
@@ -53,6 +54,21 @@ router.post("/login", async (req, res) => {
     console.error("--- LOGIN ERROR! ---");
     console.error(err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/profile", auth, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    query = "select user_name,created_at,profile_icon from users where id = $1";
+    values = [user_id];
+
+    const result = await pool.query(query, values);
+    res.json(result);
+  } catch (error) {
+    console.log("ERROR: ", error.message);
+    res.status(500).json({ error: "Internal server error!" });
   }
 });
 
