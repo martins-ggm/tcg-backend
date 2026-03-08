@@ -65,7 +65,7 @@ router.get("/profile", auth, async (req, res) => {
     values = [user_id];
 
     const result = await pool.query(query, values);
-    res.json(result);
+    res.json(result.rows);
   } catch (error) {
     console.log("ERROR: ", error.message);
     res.status(500).json({ error: "Internal server error!" });
